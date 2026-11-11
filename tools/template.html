@@ -646,7 +646,9 @@ async function serverSample(prompt){
 }
 async function serverMode(){
   try{const r=await fetch('/api/health',{cache:'no-store'}); if(!r.ok) return false; const h=await r.json(); if(!h||!h.ok) return false;
-    const fn=p=>serverSample(p); fn.json=async p=>{const t=(await serverSample(p)).text||'';return JSON.parse((t.match(/\{[\s\S]*\}/)||['{}'])[0]);};
+    const fn=p=>serverSample(p); fn.json=async p=>{const r=await serverSample(p);
+      if(r.stop_reason==='max_tokens') throw {message:'Die KI-Antwort war zu lang und wurde abgeschnitten.'};
+      try{return JSON.parse(((r.text||'').match(/\{[\s\S]*\}/)||['{}'])[0]);}catch(_){throw {message:'Die KI-Antwort ließ sich nicht lesen.'};}};
     sample=fn; if(h.code) document.getElementById('codeField').style.display=''; return true;}catch(_){return false;}
 }
 let aiSettled=false;

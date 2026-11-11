@@ -63,7 +63,10 @@ export default {
         },
         body: JSON.stringify({
           model: env.MODEL || "claude-sonnet-5-5",
-          max_tokens: 2000,
+          // Sonnet/Haiku 5.5 denken standardmäßig nach; das zählt zu max_tokens.
+          // Genug Platz für Nachdenken + Antwort lassen, Aufwand auf "medium" begrenzen.
+          max_tokens: Number(env.MAX_TOKENS) || 12000,
+          output_config: { effort: env.EFFORT || "medium" },
           system: SYSTEM,
           messages: [{ role: "user", content: prompt }],
         }),
@@ -75,7 +78,8 @@ export default {
       }
       const data = await res.json();
       const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
-      return json({ text });
+      if (data.stop_reason === "max_tokens") console.log("Antwort abgeschnitten (max_tokens)", data.usage);
+      return json({ text, stop_reason: data.stop_reason });
     }
 
     // alles andere: statische Seite
