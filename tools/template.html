@@ -172,10 +172,7 @@ svg text{font-family:Inter,sans-serif}
         <div class="lbl">Stil der Lokale <small>mehrere möglich</small></div>
         <div class="chips" id="styleChips"></div>
       </div>
-      <div class="row2 field">
-        <div><div class="lbl">Start</div><select id="start"></select></div>
-        <div><div class="lbl">Ende</div><select id="endSel"></select></div>
-      </div>
+      <div class="field"><div class="lbl">Ende <small>optional</small></div><select id="endSel"></select></div>
       <div class="field"><div class="lbl">Wochentag</div><select id="day"></select></div>
       <div class="field">
         <div class="lbl">Sonstige Wünsche</div>
@@ -258,7 +255,7 @@ const PLACES = [
 
 /* ---------- Zustand ---------- */
 const state = {
-  food:true, cuisine:new Set(["Egal"]), stops:4, styles:new Set(), start:"hbf",
+  food:true, cuisine:new Set(["Egal"]), stops:4, styles:new Set(["Egal"]), start:"any",
   day:5, added:[], hidden:[], startRest:null, must:[], end:'', vetoed:[], route:null, sel:null, placing:false, pendingPos:null
 };
 const allVenues = () => BASE_VENUES.concat(state.added);
@@ -510,7 +507,8 @@ function chips(container,items,set,single){
     container.appendChild(b);});
 }
 chips(document.getElementById('cuisineChips'),CUISINES,state.cuisine,true);
-chips(document.getElementById('styleChips'),STYLES,state.styles,false);
+chips(document.getElementById('styleChips'),['Egal',...STYLES],state.styles,true);
+const wantStyles=()=>[...state.styles].filter(x=>x!=='Egal');
 document.querySelectorAll('#foodSeg button').forEach(b=>b.onclick=()=>{state.food=b.dataset.v==='1'; if(!state.food&&state.startRest){state.startRest=null;renderPickers();applyVB();} syncFoodSeg();});
 const stopsEl=document.getElementById('stops');
 function setStops(n){state.stops=Math.max(1,Math.min(12,n));stopsEl.value=state.stops;document.getElementById('stopsVal').textContent=state.stops;}
@@ -559,8 +557,7 @@ function setEnd(val){
 }
 mustSel.onchange=()=>{ if(mustSel.value) toggleMust(mustSel.value); };
 function syncFoodSeg(){document.querySelectorAll('#foodSeg button').forEach(x=>x.classList.toggle('on',(x.dataset.v==='1')===state.food));document.getElementById('cuisineField').style.display=state.food?'':'none';}
-const startEl=document.getElementById('start'); STARTS.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;startEl.appendChild(o);});
-startEl.value=state.start; startEl.onchange=()=>{state.start=startEl.value;drawRoute();applyVB();};
+
 const dayEl=document.getElementById('day'); DAYS.forEach((d,i)=>{const o=document.createElement('option');o.value=i;o.textContent=d;dayEl.appendChild(o);});
 dayEl.value=state.day; dayEl.onchange=()=>{state.day=+dayEl.value;renderVenueList();renderPickers();applyVB();};
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
@@ -667,8 +664,8 @@ function settingsText(){
    endVenue()?`FESTER letzter Stopp (muss der letzte sein, zählt zu den Stopps): id=${endVenue().id} (${endVenue().name})`:'',
    endPlace()?`Die Tour soll in der Nähe von ${endPlace().name} enden (letzter Stopp nah dran, Weg dorthin kurz).`:'',
    state.vetoed.length?`Nicht verwenden (Veto): ${state.vetoed.map(id=>byId(id)?.name).filter(Boolean).join(', ')}`:'',
-   `Gewünschter Stil: ${state.styles.size?[...state.styles].join(', '):'keine Vorgabe, gern abwechslungsreich'}`,
-   `Startpunkt: ${st.name}`, `Wochentag: ${DAYS[state.day]}`,
+   `Gewünschter Stil: ${wantStyles().length?wantStyles().join(', '):'egal – gern abwechslungsreich'}`,
+   `Wochentag: ${DAYS[state.day]}`,
    `Sonstige Wünsche: ${document.getElementById('wish').value.trim()||'keine'}`
   ].filter(Boolean).join('\n');
 }
@@ -750,7 +747,7 @@ function orderPath(start,items,endPt){ // nächster Nachbar + 2-opt
   return out;
 }
 function planLocal(){
-  const list=candidates(), st=STARTS.find(s=>s.id===state.start), want=[...state.styles];
+  const list=candidates(), st=STARTS.find(s=>s.id===state.start), want=wantStyles();
   const score=v=>want.length?(v.styles||[]).filter(s=>want.includes(s)).length:0;
   const known=v=>(v.desc?1:0)+(openEvening(v,state.day)===true?0.8:0);
   const ev=endVenue(), ep=endPlace();
@@ -790,7 +787,7 @@ function vetoStop(i){
   const next=r.stops[i+1]?byId(r.stops[i+1].id):endPlace();
   const inRoute=new Set(r.stops.map(x=>x.id));
   const isFood=i===0&&state.food&&v.food;
-  const want=new Set([...state.styles,...(v.styles||[])]);
+  const want=new Set([...wantStyles(),...(v.styles||[])]);
   let pool=activeVenues().filter(x=>!inRoute.has(x.id));
   pool=isFood?pool.filter(x=>x.food&&(x.cat==='restaurant'||v.cat!=='restaurant')):pool.filter(x=>x.cat!=='restaurant');
   if(!pool.length){errEl.textContent=`Für „${v.name}“ habe ich keine passende Alternative gefunden.`;return;}
