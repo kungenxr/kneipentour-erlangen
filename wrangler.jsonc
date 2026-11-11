@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kneipentour-erlangen",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    // Modell für die Routenplanung – z. B. "claude-haiku-5-5" für noch günstigere Anfragen
+    "MODEL": "claude-sonnet-5-5"
+  },
+  "observability": { "enabled": true }
+}

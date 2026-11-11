@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kneipentour Erlangen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f2ec; --panel:#ffffff; --panel2:#f7f3ee; --line:#e7dfd4; --ink:#2b2119; --mute:#6c5d4f; --faint:#9b8c7c;
+  --amber:#e0761f; --amber2:#b45309; --copper:#c2410c; --soft:#fdf1e4;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:390px 1fr;height:100vh}
+aside{background:var(--panel);box-shadow:2px 0 12px rgba(60,40,20,.05);z-index:2;border-right:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column}
+header{padding:20px 22px 14px;border-bottom:1px solid var(--line)}
+h1{font-family:Fraunces,serif;font-weight:800;font-size:27px;margin:0;letter-spacing:-.01em;line-height:1.1}
+h1 span{color:var(--amber)}
+.sub{color:var(--mute);margin-top:6px;font-size:13px;line-height:1.4}
+.tabs{display:flex;gap:4px;padding:10px 16px 0;border-bottom:1px solid var(--line)}
+.tab{background:none;border:none;padding:9px 12px;color:var(--mute);cursor:pointer;border-bottom:2px solid transparent;font-weight:500}
+.tab.on{color:var(--ink);border-color:var(--amber)}
+.pane{padding:16px 22px 26px;display:none}
+.pane.on{display:block}
+.field{margin-bottom:18px}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.lbl b{color:var(--amber2);font-size:13px;letter-spacing:0;text-transform:none}
+.lbl small{text-transform:none;letter-spacing:0;font-weight:400}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:none;background:none;padding:8px;border-radius:7px;cursor:pointer;color:var(--mute);font-weight:500}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(60,40,20,.15)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 11px;cursor:pointer;color:var(--mute);font-size:13px;transition:.12s}
+.chip:hover{border-color:var(--faint)}
+.chip.on{background:var(--soft);border-color:var(--amber);color:var(--amber2);font-weight:500}
+input[type=range]{width:100%;accent-color:var(--amber)}
+select,textarea,input[type=text],input[type=search]{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 10px;outline:none}
+select:focus,textarea:focus,input:focus{border-color:var(--amber)}
+textarea{resize:vertical;min-height:58px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{width:100%;border:none;border-radius:11px;padding:12px 14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:linear-gradient(135deg,#f08a2c,var(--copper));color:#fff;box-shadow:0 4px 14px rgba(194,65,12,.25)}
+.btn.primary:disabled{opacity:.55;cursor:wait}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--mute);margin-top:8px}
+.btn.ghost:hover{color:var(--ink);border-color:var(--faint)}
+.note{font-size:12px;color:var(--faint);margin-top:8px;line-height:1.45}
+.err{color:#ff9a8a;font-size:13px;margin-top:10px}
+.result{margin-top:20px;border-top:1px solid var(--line);padding-top:18px}
+.result h2{font-family:Fraunces,serif;font-size:21px;margin:0 0 6px;line-height:1.2}
+.result .sum{color:var(--mute);line-height:1.5;margin:0 0 12px}
+.stats{display:flex;gap:16px;margin-bottom:14px;color:var(--mute);font-size:13px;flex-wrap:wrap}
+.stats b{color:var(--ink)}
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);color:var(--faint);margin-left:6px;vertical-align:2px;font-family:Inter,sans-serif;font-weight:500}
+ol.stops{list-style:none;margin:0;padding:0}
+ol.stops li{position:relative;padding:0 0 14px 38px}
+ol.stops li:before{content:"";position:absolute;left:13px;top:28px;bottom:0;border-left:2px dotted var(--line)}
+ol.stops li:last-child:before{display:none}
+.num{position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;color:#fff;font-weight:700;display:grid;place-items:center;font-size:13px}
+.sname{font-weight:600;cursor:pointer}
+.sname:hover{color:var(--amber2)}
+.smeta{color:var(--faint);font-size:12px;margin:2px 0 4px}
+.sreason{color:var(--mute);line-height:1.45;font-size:13px}
+.walk{color:var(--faint);font-size:12px;margin-top:6px}
+.links{display:flex;gap:8px;margin-top:6px}
+.links a,.links button{flex:1;text-align:center;text-decoration:none;font-size:13px;padding:9px;border-radius:9px;border:1px solid var(--line);color:var(--ink);background:var(--panel2);cursor:pointer}
+.links a:hover,.links button:hover{border-color:var(--amber)}
+.vtools{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
+.vtools select{width:auto}
+.vitem{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none;display:inline-block}
+.vitem .t{flex:1;min-width:0}
+.vitem .n{font-weight:600;cursor:pointer}
+.vitem .n:hover{color:var(--amber2)}
+.vitem .a{color:var(--faint);font-size:12px}
+.vitem .c{font-size:11.5px;color:#c2410c}
+.vitem.off .n,.vitem.off .a{opacity:.4;text-decoration:line-through}
+.sw{border:1px solid var(--line);background:var(--panel2);border-radius:7px;font-size:12px;padding:4px 8px;cursor:pointer;color:var(--mute);white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-bottom:12px;font-size:12px;color:var(--mute)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend .dot{margin-top:0}
+main{position:relative;overflow:hidden;background:#efe9e0}
+#map{width:100%;height:100%;display:block;touch-action:none;cursor:grab;user-select:none}
+#map.dragging{cursor:grabbing}
+#map.placing{cursor:crosshair}
+.mapctl{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:6px}
+.mapctl button{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.95);cursor:pointer;font-size:18px;box-shadow:0 2px 6px rgba(60,40,20,.12)}
+.mapleg{position:absolute;left:14px;top:14px;display:flex;gap:10px;background:rgba(255,255,255,.92);padding:6px 10px;border-radius:9px;font-size:12px;color:var(--mute);box-shadow:0 2px 6px rgba(60,40,20,.1)}
+.mapleg span{display:flex;align-items:center;gap:5px}
+.mapleg .dot{margin:0}
+.attrib{position:absolute;right:10px;bottom:8px;font-size:11px;color:var(--faint);background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px}
+.attrib a{color:var(--mute)}
+.pop{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:270px;box-shadow:0 12px 30px rgba(60,40,20,.18);display:none;z-index:5}
+.pop h3{margin:0 0 3px;font-family:Fraunces,serif;font-size:17px;padding-right:18px}
+.pop .a{color:var(--faint);font-size:12px;margin-bottom:7px}
+.pop p{margin:0 0 6px;color:var(--mute);line-height:1.45;font-size:13px}
+.pop .tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.pop .tags span{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:2px 7px;color:var(--mute)}
+.pop .x{position:absolute;right:8px;top:6px;background:none;border:none;color:var(--faint);cursor:pointer;font-size:16px}
+.pop a{color:var(--amber2);font-size:12.5px}
+.placebar{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--amber);color:#fff;font-weight:600;padding:8px 14px;border-radius:9px;display:none;z-index:6}
+.modal{position:fixed;inset:0;background:rgba(40,30,20,.35);display:none;place-items:center;z-index:20}
+.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(380px,92vw)}
+.modal h3{margin:0 0 12px;font-family:Fraunces,serif}
+.modal .field{margin-bottom:12px}
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+svg text{font-family:Inter,sans-serif}
+.picked{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pchip{display:flex;align-items:center;gap:6px;background:var(--soft);border:1px solid #f3c99d;color:var(--amber2);border-radius:999px;padding:5px 6px 5px 11px;font-size:13px}
+.pchip button{border:none;background:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;color:var(--mute);font-size:12px;line-height:1}
+.popbtns{display:flex;gap:6px;margin:8px 0 4px}
+.popbtns button{flex:1;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:7px 6px;font-size:12px;cursor:pointer;color:var(--ink)}
+.popbtns button.on{background:var(--soft);border-color:var(--amber);color:var(--amber2)}
+.veto{float:right;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:11.5px;padding:3px 8px;cursor:pointer;color:var(--mute);margin-left:8px}
+.veto:hover{border-color:#c2410c;color:#c2410c}
+.vetobar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--faint);margin:-4px 0 12px}
+.vetobar button{border:none;background:none;color:var(--amber2);cursor:pointer;font-size:12px;text-decoration:underline}
+.pin{display:inline-block;font-size:10.5px;background:var(--soft);color:var(--amber2);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:1px;font-weight:600}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr;grid-template-rows:58vh auto;height:auto}
+  main{grid-row:1;height:58vh}
+  aside{grid-row:2;border-right:none;border-top:1px solid var(--line);overflow:visible}
+  .mapleg{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <header>
+      <h1>Kneipentour <span>Erlangen</span></h1>
+      <div class="sub">Stell ein, wie dein Abend aussehen soll – die KI baut daraus eine Route durch die Innenstadt.</div>
+    </header>
+    <div class="tabs">
+      <button class="tab on" data-tab="plan">Route planen</button>
+      <button class="tab" data-tab="venues">Lokale (<span id="vcount">0</span>)</button>
+    </div>
+
+    <section class="pane on" id="pane-plan">
+      <div class="field">
+        <div class="lbl">Mit Essen starten?</div>
+        <div class="seg" id="foodSeg">
+          <button data-v="1" class="on">Ja, erst essen</button>
+          <button data-v="0">Nein, direkt los</button>
+        </div>
+      </div>
+      <div id="cuisineField">
+        <div class="field">
+          <div class="lbl">Bestimmtes Restaurant? <small>optional</small></div>
+          <select id="restSel"></select>
+          <div class="note" id="restNote" style="margin-top:6px"></div>
+        </div>
+        <div class="field" id="cuisineChipsField">
+          <div class="lbl">Sonst: was essen?</div>
+          <div class="chips" id="cuisineChips"></div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="lbl">Kneipen-Stopps <b id="stopsVal">4</b></div>
+        <input type="range" id="stops" min="1" max="12" value="4">
+      </div>
+      <div class="field">
+        <div class="lbl">Diese Kneipen auf jeden Fall <small>optional</small></div>
+        <select id="mustSel"></select>
+        <div class="picked" id="mustList"></div>
+        <div class="note" id="mustNote" style="margin-top:6px">Die Route nimmt sie fest auf und füllt die übrigen Stopps passend auf.</div>
+      </div>
+      <div class="field">
+        <div class="lbl">Stil der Lokale <small>mehrere möglich</small></div>
+        <div class="chips" id="styleChips"></div>
+      </div>
+      <div class="row2 field">
+        <div><div class="lbl">Start</div><select id="start"></select></div>
+        <div><div class="lbl">Ende</div><select id="endSel"></select></div>
+      </div>
+      <div class="field"><div class="lbl">Wochentag</div><select id="day"></select></div>
+      <div class="field">
+        <div class="lbl">Sonstige Wünsche</div>
+        <textarea id="wish" placeholder="z. B. kurze Wege, zum Schluss tanzen, Junggesellenabschied mit 8 Leuten…"></textarea>
+      </div>
+      <div class="field" id="codeField" style="display:none"><div class="lbl">Freundes-Code</div><input type="text" id="friendCode" placeholder="Code für die KI-Planung" autocomplete="off"></div>
+      <button class="btn primary" id="aiBtn">✦ Route mit KI planen</button>
+      <button class="btn ghost" id="quickBtn">Schnellroute ohne KI</button>
+      <div class="note" id="aiNote"></div>
+      <div class="err" id="err"></div>
+      <div id="result"></div>
+    </section>
+
+    <section class="pane" id="pane-venues">
+      <div class="legend" id="legend"></div>
+      <div class="vtools">
+        <input type="search" id="vsearch" placeholder="Suchen: Name, Straße, Küche …">
+        <select id="vcat"><option value="">Alle</option><option value="restaurant">Restaurants</option><option value="kneipe">Kneipen</option><option value="bar">Bars</option><option value="club">Clubs</option></select>
+      </div>
+      <button class="btn ghost" id="addBtn" style="margin:0 0 6px">＋ Lokal hinzufügen (auf Karte setzen)</button>
+      <div class="note" id="saveNote"></div>
+      <div id="vlist"></div>
+      <div class="note" style="margin-top:14px">Grundlage: OpenStreetMap-Daten der Innenstadt, ergänzt um eigene Recherche (Stand November 2026). Ausgegraute Lokale lässt die Planung weg. Lokale, die laut Öffnungszeiten am gewählten Abend zu haben, plant die Route nicht ein.</div>
+    </section>
+  </aside>
+
+  <main>
+    <svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="mapleg" id="mapleg"></div>
+    <div class="mapctl">
+      <button id="zin" title="Hineinzoomen">+</button>
+      <button id="zout" title="Herauszoomen">−</button>
+      <button id="zfit" title="Alles zeigen">⤢</button>
+    </div>
+    <div class="placebar" id="placebar">Tippe auf die Karte, wo das Lokal liegt · <u id="placeCancel" style="cursor:pointer">abbrechen</u></div>
+    <div class="pop" id="pop"></div>
+    <div class="attrib">Kartendaten © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkende</a></div>
+  </main>
+</div>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <h3>Neues Lokal</h3>
+    <div class="field"><div class="lbl">Name</div><input type="text" id="nName"></div>
+    <div class="field"><div class="lbl">Adresse</div><input type="text" id="nAddr" placeholder="Straße Hausnr."></div>
+    <div class="field"><div class="lbl">Art</div>
+      <select id="nCat"><option value="kneipe">Kneipe</option><option value="bar">Bar</option><option value="restaurant">Restaurant</option><option value="club">Club / DJ-Bar</option></select></div>
+    <div class="field"><div class="lbl">Stil</div><div class="chips" id="nStyles"></div></div>
+    <div class="field"><div class="lbl">Kurzbeschreibung</div><input type="text" id="nDesc"></div>
+    <div class="row2"><button class="btn ghost" id="nCancel" style="margin:0">Abbrechen</button><button class="btn primary" id="nSave">Speichern</button></div>
+  </div>
+</div>
+
+<script>
+const MAP = /*__MAP__*/null;
+const BASE_VENUES = /*__VENUES__*/[];
+
+const CATS = {
+  restaurant:{label:"Restaurant", color:"#e8743b"},
+  kneipe:{label:"Kneipe", color:"#d4a017"},
+  bar:{label:"Bar", color:"#d6336c"},
+  club:{label:"Club", color:"#7048e8"}
+};
+const STYLES = ["Fränkisch & Bier","Wein & Genuss","Gemütlich & urig","Irish Pub","Studentenkneipe","Cocktails & Bar","DJ-Bar & Tanzen","Schlager & Oldies","Sportsbar","Modern & locker"];
+const CUISINES = ["Egal","Fränkisch & Deutsch","Burger & Steak","Italienisch & Pizza","Mediterran & Griechisch","Asiatisch","Indisch & Orientalisch","Mexikanisch","International"];
+const STARTS = [
+ {id:"hbf",name:"Hauptbahnhof",lat:49.59607,lon:11.00159},
+ {id:"hug",name:"Hugenottenplatz",lat:49.59633,lon:11.00388},
+ {id:"schloss",name:"Schlossplatz",lat:49.59780,lon:11.00420},
+ {id:"mlp",name:"Martin-Luther-Platz",lat:49.60178,lon:11.00310},
+ {id:"theater",name:"Theaterplatz",lat:49.60030,lon:11.00560},
+ {id:"any",name:"Egal",lat:null,lon:null}
+];
+const DAYS = ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
+const PLACES = [
+ ["Hugenottenplatz",49.59633,11.00410],["Schlossplatz",49.59790,11.00420],
+ ["Martin-Luther-Platz",49.60185,11.00318],["Altstädter Kirchenplatz",49.60137,11.00405],["Theaterplatz",49.60040,11.00570],
+ ["Schlossgarten",49.59820,11.00660],["Burgberg · Bergkirchweih",49.60720,11.00880],["Neustädter Kirchenplatz",49.59585,11.00560]
+];
+
+/* ---------- Zustand ---------- */
+const state = {
+  food:true, cuisine:new Set(["Egal"]), stops:4, styles:new Set(), start:"hbf",
+  day:5, added:[], hidden:[], startRest:null, must:[], end:'', vetoed:[], route:null, sel:null, placing:false, pendingPos:null
+};
+const allVenues = () => BASE_VENUES.concat(state.added);
+const byId = id => allVenues().find(v=>v.id===id);
+
+/* Öffnungszeiten */
+function dayIv(v,d){ if(!v.oh) return null; const today=v.oh[d]||[]; const prev=(v.oh[(d+6)%7]||[]).filter(i=>i[1]>1440).map(i=>[0,i[1]-1440]); return today; }
+function openEvening(v,d){ // null = unbekannt
+  const iv=dayIv(v,d); if(iv===null) return null;
+  return iv.some(([a,b])=>a<1380 && b>1140); // irgendwann 19–23 Uhr offen
+}
+const fmt=m=>{m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');};
+function hoursOn(v,d){ const iv=dayIv(v,d); if(iv===null) return v.hours?('laut Angabe: '+v.hours):'unbekannt'; if(!iv.length) return 'geschlossen'; return iv.slice().sort((a,b)=>a[0]-b[0]).map(([a,b])=>fmt(a)+'–'+fmt(b)).join(', '); }
+const closesLate = (v,d)=>{const iv=dayIv(v,d); return iv? iv.some(([a,b])=>b>=1620):/bis 0[3-5]/.test(v.hours||'');};
+const usable = v => !state.hidden.includes(v.id) && !state.vetoed.includes(v.id) && openEvening(v,state.day)!==false;
+const endVenue=()=>state.end&&!state.end.startsWith('p:')?byId(state.end):null;
+const endPlace=()=>state.end&&state.end.startsWith('p:')?STARTS.find(s=>'p:'+s.id===state.end):null;
+const activeVenues = () => allVenues().filter(usable);
+
+/* ---------- Geometrie ---------- */
+const LAT0=49.597, LON0=11.005, KX=Math.cos(LAT0*Math.PI/180)*111320, KY=110540;
+const P = (lat,lon)=>[ (lon-LON0)*KX, -(lat-LAT0)*KY ];
+const unP = (x,y)=>({lon:x/KX+LON0, lat:-y/KY+LAT0});
+function dist(a,b){const R=6371000,t=Math.PI/180,dLat=(b.lat-a.lat)*t,dLon=(b.lon-a.lon)*t;const h=Math.sin(dLat/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+const walkM = (a,b)=>Math.round(dist(a,b)*1.3/10)*10;
+const walkMin = m=>Math.max(1,Math.round(m/75));
+/* Fußwegenetz aus OSM: kürzeste Wege (Dijkstra) */
+const G=(()=>{const xy=MAP.graph.xy,e=MAP.graph.e,n=xy.length/2,adj=Array.from({length:n},()=>[]);
+  for(let k=0;k<e.length;k+=2){const a=e[k],b=e[k+1],w=Math.hypot(xy[2*a]-xy[2*b],xy[2*a+1]-xy[2*b+1]);adj[a].push(b,w);adj[b].push(a,w);}
+  // größte zusammenhängende Komponente
+  const comp=new Int32Array(n).fill(-1);let best=-1,bestSize=0,c=0;
+  for(let i=0;i<n;i++){if(comp[i]>=0)continue;let size=0;const st=[i];comp[i]=c;while(st.length){const u=st.pop();size++;const a=adj[u];for(let k=0;k<a.length;k+=2){if(comp[a[k]]<0){comp[a[k]]=c;st.push(a[k]);}}}if(size>bestSize){bestSize=size;best=c;}c++;}
+  const main=[];for(let i=0;i<n;i++)if(comp[i]===best)main.push(i);
+  return {xy,n,adj,main};})();
+const snapCache=new Map();
+function snap(p){const k=p.lat+','+p.lon;if(snapCache.has(k))return snapCache.get(k);const [x,y]=P(p.lat,p.lon);let bi=-1,bd=1e18;
+  for(const i of G.main){const dx=G.xy[2*i]-x,dy=G.xy[2*i+1]-y,d=dx*dx+dy*dy;if(d<bd){bd=d;bi=i;}} const r={i:bi,d:Math.sqrt(bd)};snapCache.set(k,r);return r;}
+const dijCache=new Map();
+function dijkstra(src){
+  if(dijCache.has(src))return dijCache.get(src);
+  const n=G.n,dist=new Float64Array(n).fill(Infinity),prev=new Int32Array(n).fill(-1);dist[src]=0;
+  const hn=[],hd=[];const push=(v,d)=>{hn.push(v);hd.push(d);let i=hn.length-1;while(i>0){const p=(i-1)>>1;if(hd[p]<=hd[i])break;[hn[p],hn[i]]=[hn[i],hn[p]];[hd[p],hd[i]]=[hd[i],hd[p]];i=p;}};
+  const pop=()=>{const v=hn[0],d=hd[0],lv=hn.pop(),ld=hd.pop();if(hn.length){hn[0]=lv;hd[0]=ld;let i=0;for(;;){const l=2*i+1,r=l+1;let m=i;if(l<hn.length&&hd[l]<hd[m])m=l;if(r<hn.length&&hd[r]<hd[m])m=r;if(m===i)break;[hn[m],hn[i]]=[hn[i],hn[m]];[hd[m],hd[i]]=[hd[i],hd[m]];i=m;}}return [v,d];};
+  push(src,0);
+  while(hn.length){const [u,d]=pop();if(d>dist[u])continue;const a=G.adj[u];for(let k=0;k<a.length;k+=2){const v=a[k],nd=d+a[k+1];if(nd<dist[v]){dist[v]=nd;prev[v]=u;push(v,nd);}}}
+  const r={dist,prev}; if(dijCache.size>260)dijCache.clear(); dijCache.set(src,r); return r;
+}
+function netM(a,b){const sa=snap(a),sb=snap(b);const d=dijkstra(sa.i).dist[sb.i];return isFinite(d)?Math.round((d+sa.d+sb.d)/10)*10:walkM(a,b);}
+function netPath(a,b){const sa=snap(a),sb=snap(b),{prev,dist}=dijkstra(sa.i);const pts=[P(b.lat,b.lon)];
+  if(!isFinite(dist[sb.i]))return [P(a.lat,a.lon),P(b.lat,b.lon)];
+  for(let v=sb.i;v>=0;v=prev[v]){pts.push([G.xy[2*v],G.xy[2*v+1]]);if(v===sa.i)break;}
+  pts.push(P(a.lat,a.lon));return pts.reverse();}
+
+/* ---------- Karte ---------- */
+const svg=document.getElementById('map'), NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+let gStreetLab,gPlaceLab,gRoute,gMarkers;
+const ROADSTYLE={
+  secondary:{w:13,c:'#fde8c8',k:'#e3c79f'}, tertiary:{w:11,c:'#fff6e6',k:'#e2d3bd'}, tertiary_link:{w:9,c:'#fff6e6',k:'#e2d3bd'},
+  residential:{w:8,c:'#ffffff',k:'#e2d8ca'}, unclassified:{w:8,c:'#ffffff',k:'#e2d8ca'}, living_street:{w:7,c:'#ffffff',k:'#e2d8ca'},
+  road:{w:7,c:'#ffffff',k:'#e2d8ca'}, pedestrian:{w:8,c:'#f7f1e8',k:'#e2d8ca'}, service:{w:4,c:'#ffffff',k:null},
+  track:{w:3,c:'#ece4d8',k:null}, footway:{w:1.6,c:'#c9bba8',k:null,dash:'3 2.5'}, path:{w:1.6,c:'#c9bba8',k:null,dash:'3 2.5'},
+  cycleway:{w:1.6,c:'#b9c9d9',k:null,dash:'3 2.5'}, steps:{w:2.4,c:'#c9bba8',k:null,dash:'1 1.2'}
+};
+function drawBase(){
+  svg.innerHTML="";
+  const defs=el('defs',{},svg);
+  const glow=el('filter',{id:'glow',x:'-50%',y:'-50%',width:'200%',height:'200%'},defs);
+  el('feDropShadow',{dx:0,dy:1.5,stdDeviation:2,"flood-color":'#5a3a1a',"flood-opacity":.35},glow);
+  const base=el('g',{},svg);
+  el('rect',{x:-6000,y:-6000,width:12000,height:12000,fill:'#efe9e0'},base);
+  const [b0,b1]=MAP.bounds;
+  el('rect',{x:b0[0],y:b0[1],width:b1[0]-b0[0],height:b1[1]-b0[1],fill:'#f5f1ea'},base);
+  const L=MAP.layers, J=a=>(a||[]).join('');
+  el('path',{d:J(L.green),fill:'#dcead0',"fill-rule":'evenodd'},base);
+  el('path',{d:J(L.parking),fill:'#ece6dd'},base);
+  el('path',{d:J(L.plaza),fill:'#f8f0e3'},base);
+  el('path',{d:J(L.water),fill:'#c7e0ec',"fill-rule":'evenodd'},base);
+  el('path',{d:J(MAP.water),stroke:'#a9d0e3',"stroke-width":7,fill:'none',"stroke-linecap":'round',"stroke-linejoin":'round'},base);
+  // Straßen: erst Kanten, dann Flächen
+  const order=['track','service','living_street','road','unclassified','residential','pedestrian','tertiary_link','tertiary','secondary'];
+  order.forEach(k=>{const s=ROADSTYLE[k]; if(s.k && MAP.roads[k]) el('path',{d:J(MAP.roads[k]),stroke:s.k,"stroke-width":s.w+3,fill:'none',"stroke-linecap":'round',"stroke-linejoin":'round'},base);});
+  ['footway','path','cycleway','steps'].forEach(k=>{const s=ROADSTYLE[k]; if(MAP.roads[k]) el('path',{d:J(MAP.roads[k]),stroke:s.c,"stroke-width":s.w,fill:'none',"stroke-dasharray":s.dash||'none',"stroke-linecap":'round'},base);});
+  order.forEach(k=>{const s=ROADSTYLE[k]; if(MAP.roads[k]) el('path',{d:J(MAP.roads[k]),stroke:s.c,"stroke-width":s.w,fill:'none',"stroke-linecap":'round',"stroke-linejoin":'round'},base);});
+  el('path',{d:J(L.building),fill:'#e6ddd0',stroke:'#d5c9b9',"stroke-width":.6},base);
+  el('path',{d:J(MAP.rail),stroke:'#a99d90',"stroke-width":4.5,fill:'none'},base);
+  el('path',{d:J(MAP.rail),stroke:'#ffffff',"stroke-width":2.4,fill:'none',"stroke-dasharray":'9 7'},base);
+  // Straßennamen entlang der Straße
+  gStreetLab=el('g',{fill:'#7a6a59',"paint-order":'stroke',stroke:'#ffffff',"letter-spacing":'.03em'},svg);
+  MAP.labels.forEach((l,i)=>{ const id='sl'+i; el('path',{id,d:l.d,fill:'none',stroke:'none'},defs);
+    const t=el('text',{"data-len":l.len,"data-n":l.n.length},gStreetLab); const tp=el('textPath',{href:'#'+id,startOffset:'50%',"text-anchor":'middle',dy:'0.35em'},t); tp.textContent=l.n; });
+  gPlaceLab=el('g',{fill:'#8a6440',"font-style":'italic',"text-anchor":'middle',"paint-order":'stroke',stroke:'#f5f1ea'},svg);
+  PLACES.forEach(([n,la,lo])=>{const [x,y]=P(la,lo); const t=el('text',{x,y},gPlaceLab); t.textContent=n;});
+  const st=MAP.places.find(p=>p.station); if(st){const t=el('text',{x:st.x-14,y:st.y,"text-anchor":'end',"font-style":'normal',"font-weight":600,fill:'#4a3a2c'},gPlaceLab);t.textContent='Hauptbahnhof';}
+  gRoute=el('g',{},svg);
+  gMarkers=el('g',{},svg);
+}
+let scale=1;
+function pxPerUnit(){const r=svg.getBoundingClientRect();return Math.min(r.width/vb.w,r.height/vb.h)||1;}
+function drawMarkers(){
+  scale=pxPerUnit(); const u=1/scale; gMarkers.innerHTML="";
+  const inRoute=new Map(); (state.route?.stops||[]).forEach((s,i)=>inRoute.set(s.id,i+1));
+  const st=STARTS.find(s=>s.id===state.start);
+  if(st&&st.lat){const [x,y]=P(st.lat,st.lon);el('circle',{cx:x,cy:y,r:8*u,fill:'#fff',stroke:'#c2410c',"stroke-width":3*u},gMarkers);el('circle',{cx:x,cy:y,r:3*u,fill:'#c2410c'},gMarkers);}
+  const showLabels = scale>1.25;
+  const list=allVenues().slice().sort((a,b)=>(inRoute.has(a.id)?1:0)-(inRoute.has(b.id)?1:0)||(a.cat==='restaurant'?-1:1));
+  list.forEach(v=>{
+    const [x,y]=P(v.lat,v.lon), n=inRoute.get(v.id), off=!usable(v);
+    if(state.route && !n && scale<0.9 && v.id!==state.sel) return;
+    const must=state.must.includes(v.id)||state.startRest===v.id||state.end===v.id;
+    const g=el('g',{style:'cursor:pointer',opacity: n?1:(off?0.3:(state.route&&!must?0.55:1))},gMarkers);
+    const col=CATS[v.cat].color;
+    if(n){
+      el('circle',{cx:x,cy:y,r:14*u,fill:col,stroke:'#fff',"stroke-width":3*u,filter:'url(#glow)'},g);
+      const t=el('text',{x,y:y+5*u,fill:'#fff',"font-size":14*u,"font-weight":800,"text-anchor":'middle'},g);t.textContent=n;
+    } else {
+      const r=(v.cat==='restaurant'?4.5:6)*u*(scale>1.6?1.2:1);
+      el('circle',{cx:x,cy:y,r,fill:col,stroke:'#fff',"stroke-width":1.8*u},g);
+      if(must) el('circle',{cx:x,cy:y,r:r+3.5*u,fill:'none',stroke:col,"stroke-width":2*u},g);
+      el('circle',{cx:x,cy:y,r:r+7*u,fill:'transparent'},g);
+    }
+    if(state.sel===v.id) el('circle',{cx:x,cy:y,r:(n?20:12)*u,fill:'none',stroke:'#2b2119',"stroke-width":2*u},g);
+    if(n || showLabels || must || state.sel===v.id){
+      const lab=el('text',{x:x+(n?19:10)*u,y:y+4*u,fill:n?'#2b2119':'#4a3a2c',"font-size":(n?13.5:11.5)*u,"font-weight":n?700:500,"paint-order":'stroke',stroke:'#ffffff',"stroke-width":3.5*u},g);lab.textContent=v.name;
+    }
+    g.setAttribute('data-vid',v.id);
+  });
+  // Label-Größen in Bildschirmpixeln konstant halten
+  const fs=10.5*u; gStreetLab.setAttribute('font-size',fs); gStreetLab.setAttribute('stroke-width',3*u);
+  gStreetLab.style.display = scale>0.75?'':'none';
+  gStreetLab.querySelectorAll('text').forEach(t=>{ t.style.display = (+t.dataset.n*fs*0.62 < +t.dataset.len*0.9)?'':'none'; });
+  gPlaceLab.setAttribute('font-size',12*u); gPlaceLab.setAttribute('stroke-width',3.5*u);
+  gRoute.querySelectorAll('[data-w]').forEach(p=>p.setAttribute('stroke-width',(+p.dataset.w)*u));
+  gRoute.querySelectorAll('[data-arrow]').forEach(p=>{p.setAttribute('transform',p.dataset.arrow+` scale(${u})`);});
+}
+function drawRoute(){
+  gRoute.innerHTML=""; const r=state.route; if(!r) return;
+  const seq=[]; const st=STARTS.find(s=>s.id===state.start); if(st&&st.lat) seq.push(st);
+  r.stops.forEach(s=>{const v=byId(s.id); if(v) seq.push(v);});
+  const ep=endPlace(); if(ep) seq.push(ep);
+  for(let i=0;i<seq.length-1;i++){
+    const pts=netPath(seq[i],seq[i+1]); const d='M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L');
+    const dashed=(i===0&&st&&st.lat)||(ep&&i===seq.length-2);
+    el('path',{d,stroke:'#ffffff',"data-w":8,fill:'none',"stroke-linecap":'round',"stroke-linejoin":'round'},gRoute);
+    el('path',{d,stroke:'#d9480f',"data-w":3.5,fill:'none',"stroke-linecap":'round',"stroke-linejoin":'round',"stroke-dasharray":dashed?'1 7':'none',"vector-effect":dashed?'non-scaling-stroke':'none'},gRoute);
+    // Pfeil auf halber Strecke
+    let L=0;const seg=[];for(let k=1;k<pts.length;k++){const l=Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]);seg.push(l);L+=l;}
+    let h=L*0.5,k=0;while(k<seg.length-1&&h>seg[k]){h-=seg[k];k++;}
+    const a=pts[k],b=pts[k+1]||pts[k],t=seg[k]?h/seg[k]:0,px=a[0]+(b[0]-a[0])*t,py=a[1]+(b[1]-a[1])*t,ang=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;
+    if(L>40) el('path',{d:'M-7,-6 L6,0 L-7,6 z',fill:'#d9480f',"data-arrow":`translate(${px},${py}) rotate(${ang})`},gRoute);
+  }
+  if(ep){const [x,y]=P(ep.lat,ep.lon);const g=el('g',{"data-arrow":`translate(${x},${y})`},gRoute);
+    el('path',{d:'M0,0 L0,-26 L16,-20 L0,-14',fill:'#d9480f',stroke:'#fff',"stroke-width":2,"stroke-linejoin":'round'},g);el('circle',{cx:0,cy:0,r:4,fill:'#d9480f',stroke:'#fff',"stroke-width":2},g);}
+}
+
+/* ---------- Pan & Zoom ---------- */
+let vb={x:-400,y:-700,w:1300,h:1300}, raf=0;
+function applyVB(){svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`); if(!raf) raf=requestAnimationFrame(()=>{raf=0;drawMarkers();positionPop();});}
+function fit(b,padR){
+  const rect=svg.getBoundingClientRect(); const ar=(rect.width/rect.height)||1;
+  let {x0,y0,x1,y1}=b; const pad=Math.max(60,(x1-x0)*0.08); x0-=pad;y0-=pad;x1+=pad+(padR||0);y1+=pad;
+  let w=x1-x0,h=y1-y0; if(w/h<ar){const nw=h*ar;x0-=(nw-w)/2;w=nw}else{const nh=w/ar;y0-=(nh-h)/2;h=nh}
+  vb={x:x0,y:y0,w,h};applyVB();
+}
+function fitPoints(list,padR){const ps=list.map(v=>P(v.lat,v.lon));fit({x0:Math.min(...ps.map(p=>p[0])),y0:Math.min(...ps.map(p=>p[1])),x1:Math.max(...ps.map(p=>p[0])),y1:Math.max(...ps.map(p=>p[1]))},padR);}
+function fitCore(){ // Innenstadt-Kern
+  fitPoints([{lat:49.6035,lon:11.0010},{lat:49.5935,lon:11.0125}]);
+}
+function zoom(f,cx,cy){
+  const rect=svg.getBoundingClientRect();
+  const ux=cx==null?vb.x+vb.w/2:vb.x+(cx-rect.left)/rect.width*vb.w, uy=cy==null?vb.y+vb.h/2:vb.y+(cy-rect.top)/rect.height*vb.h;
+  const nw=Math.min(4000,Math.max(120,vb.w*f)),k=nw/vb.w;
+  vb={x:ux-(ux-vb.x)*k,y:uy-(uy-vb.y)*k,w:nw,h:vb.h*k};applyVB();
+}
+const ptrs=new Map(); let drag=null,moved=false,pinch=null,downVid=null;
+svg.addEventListener('pointerdown',e=>{const hit=e.target.closest&&e.target.closest('[data-vid]');downVid=hit?hit.getAttribute('data-vid'):null;try{svg.setPointerCapture(e.pointerId);}catch(_){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=false;
+  if(ptrs.size===1)drag={x:e.clientX,y:e.clientY,vb:{...vb}};
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)};drag=null;}});
+svg.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinch&&ptrs.size===2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);zoom(pinch.d/d,(a.x+b.x)/2,(a.y+b.y)/2);pinch.d=d;moved=true;return;}
+  if(drag){const rect=svg.getBoundingClientRect();if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>4){moved=true;svg.classList.add('dragging');}
+    vb.x=drag.vb.x-(e.clientX-drag.x)/rect.width*vb.w;vb.y=drag.vb.y-(e.clientY-drag.y)/rect.height*vb.h;applyVB();}});
+function endPtr(e){ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(!ptrs.size){drag=null;svg.classList.remove('dragging');}}
+svg.addEventListener('pointerup',e=>{const wm=moved;endPtr(e);
+  if(!wm&&state.placing){const rect=svg.getBoundingClientRect();const x=vb.x+(e.clientX-rect.left)/rect.width*vb.w,y=vb.y+(e.clientY-rect.top)/rect.height*vb.h;state.pendingPos=unP(x,y);stopPlacing();openModal();return;}
+  if(!wm){ if(downVid){ if(state.sel!==downVid) selectVenue(downVid,true); pinned=true; } else {pinned=false;hidePop();} } downVid=null;});
+svg.addEventListener('pointercancel',endPtr);
+svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.15:1/1.15,e.clientX,e.clientY);},{passive:false});
+document.getElementById('zin').onclick=()=>zoom(1/1.4);
+document.getElementById('zout').onclick=()=>zoom(1.4);
+document.getElementById('zfit').onclick=()=>state.route?fitRoute():fitCore();
+window.addEventListener('resize',applyVB);
+/* Hover: Info sofort zeigen, Klick pinnt sie */
+let hoverVid=null, hideT=null, pinned=false;
+function schedHide(){clearTimeout(hideT);hideT=setTimeout(()=>{if(!pinned&&!pop.matches(':hover'))hidePop();},250);}
+svg.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='mouse'||e.buttons||state.placing) return;
+  const hit=e.target.closest&&e.target.closest('[data-vid]'); const id=hit?hit.getAttribute('data-vid'):null;
+  if(id===hoverVid) return; hoverVid=id;
+  if(id){clearTimeout(hideT); if(state.sel!==id){pinned=false;selectVenue(id,true);}}
+  else if(!pinned) schedHide();
+});
+svg.addEventListener('pointerleave',()=>{hoverVid=null;if(!pinned)schedHide();});
+
+/* ---------- Popup ---------- */
+const pop=document.getElementById('pop');
+pop.addEventListener('mouseenter',()=>clearTimeout(hideT));
+pop.addEventListener('mouseleave',()=>{if(!pinned)schedHide();});
+pop.addEventListener('click',()=>{pinned=true;});
+const CUISINE_TXT={'Fränkisch & Deutsch':'Fränkische und deutsche Küche','Burger & Steak':'Burger und Steaks','Italienisch & Pizza':'Italienische Küche und Pizza','Mediterran & Griechisch':'Mediterrane und griechische Küche','Asiatisch':'Asiatische Küche','Indisch & Orientalisch':'Indische und orientalische Küche','Mexikanisch':'Mexikanische Küche','International':'Internationale Küche'};
+function autoDesc(v){ if(v.desc) return v.desc;
+  const late=closesLate(v,state.day);
+  if(v.cat==='restaurant') return `${CUISINE_TXT[v.cuisine]||'Restaurant'} in der ${v.addr.replace(/^nahe /,'').replace(/\s*\d.*$/,'')}.`;
+  return `${CATS[v.cat].label}${v.styles&&v.styles.length?' – '+v.styles.join(', '):''}${late?', lange geöffnet':''}.`; }
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function gmaps(v){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(v.name+', '+v.addr.replace(/^nahe /,'')+', Erlangen');}
+function selectVenue(id,fromMap){
+  state.sel=id; const v=byId(id); if(!v) return;
+  if(!fromMap){const [x,y]=P(v.lat,v.lon); if(vb.w>600){const k=600/vb.w;vb.w*=k;vb.h*=k;} vb.x=x-vb.w/2; vb.y=y-vb.h/2;}
+  const o=openEvening(v,state.day);
+  pop.innerHTML=`<button class="x" onclick="hidePop()">✕</button><h3>${esc(v.name)}</h3><div class="a">${esc(CATS[v.cat].label)} · ${esc(v.addr)}</div>
+   <div class="tags">${(v.styles||[]).map(s=>`<span>${esc(s)}</span>`).join('')}${v.food?`<span>Essen: ${esc(v.cuisine||'ja')}</span>`:''}</div>
+   <p>${esc(autoDesc(v))}</p>
+   <p style="font-size:12.5px;margin-bottom:2px"><b style="color:${o===false?'#b91c1c':o===true?'#2f7a3b':'var(--mute)'}">${o===false?'● zu':o===true?'● offen':'● Zeiten unbekannt'}</b> <span style="color:var(--mute)">${esc(DAYS[state.day])}: ${esc(hoursOn(v,state.day))}</span></p>
+   ${v.hours?`<p style="font-size:11.5px;color:var(--faint)">Alle Zeiten: ${esc(v.hours)}</p>`:''}
+   <div class="popbtns">${v.food?`<button id="pbRest" class="${state.startRest===v.id?'on':''}">${state.startRest===v.id?'✓ Start-Restaurant':'Als Start-Restaurant'}</button>`:''}${v.cat!=='restaurant'?`<button id="pbMust" class="${state.must.includes(v.id)?'on':''}">${state.must.includes(v.id)?'✓ Fest in der Tour':'Fest in die Tour'}</button><button id="pbEnd" class="${state.end===v.id?'on':''}">${state.end===v.id?'✓ Letzter Stopp':'Als letzter Stopp'}</button>`:''}</div>
+   <a href="${gmaps(v)}" target="_blank" rel="noopener">In Google Maps öffnen ↗</a>${v.web?` · <a href="${esc(v.web)}" target="_blank" rel="noopener">Website ↗</a>`:''}`;
+  pop.style.display='block';
+  const pr=document.getElementById('pbRest'); if(pr) pr.onclick=()=>setStartRest(state.startRest===v.id?null:v.id);
+  const pm=document.getElementById('pbMust'); if(pm) pm.onclick=()=>toggleMust(v.id);
+  const pe=document.getElementById('pbEnd'); if(pe) pe.onclick=()=>setEnd(state.end===v.id?'':v.id);
+  applyVB();
+}
+function positionPop(){
+  if(pop.style.display!=='block'||!state.sel) return; const v=byId(state.sel); if(!v) return;
+  const rect=svg.getBoundingClientRect(),[x,y]=P(v.lat,v.lon); const px=(x-vb.x)/vb.w*rect.width,py=(y-vb.y)/vb.h*rect.height;
+  let left=px+18,top=py-20; if(left+280>rect.width) left=px-290; if(top+pop.offsetHeight>rect.height-10) top=rect.height-pop.offsetHeight-10; if(top<10) top=10; if(left<10) left=10;
+  pop.style.left=left+'px'; pop.style.top=top+'px';
+}
+function hidePop(){pop.style.display='none';state.sel=null;pinned=false;applyVB();}
+window.hidePop=hidePop;
+
+/* ---------- Einstellungen ---------- */
+function chips(container,items,set,single){
+  container.innerHTML="";
+  items.forEach(it=>{const b=document.createElement('button');b.className='chip'+(set.has(it)?' on':'');b.textContent=it;
+    b.onclick=()=>{ if(single){ if(it==="Egal"){set.clear();set.add("Egal");} else {set.delete("Egal"); set.has(it)?set.delete(it):set.add(it); if(!set.size) set.add("Egal");} }
+      else { set.has(it)?set.delete(it):set.add(it); } chips(container,items,set,single); };
+    container.appendChild(b);});
+}
+chips(document.getElementById('cuisineChips'),CUISINES,state.cuisine,true);
+chips(document.getElementById('styleChips'),STYLES,state.styles,false);
+document.querySelectorAll('#foodSeg button').forEach(b=>b.onclick=()=>{state.food=b.dataset.v==='1'; if(!state.food&&state.startRest){state.startRest=null;renderPickers();applyVB();} syncFoodSeg();});
+const stopsEl=document.getElementById('stops');
+function setStops(n){state.stops=Math.max(1,Math.min(12,n));stopsEl.value=state.stops;document.getElementById('stopsVal').textContent=state.stops;}
+stopsEl.oninput=()=>{ const min=state.must.length+(endVenue()?1:0); setStops(Math.max(min,+stopsEl.value)); };
+const restSel=document.getElementById('restSel'), mustSel=document.getElementById('mustSel');
+const sortName=(a,b)=>a.name.localeCompare(b.name,'de');
+const closedTag=v=>openEvening(v,state.day)===false?' (an dem Abend zu)':'';
+function renderPickers(){
+  // Start-Restaurant: alle Lokale mit Essen, nach Küche gruppiert
+  const food=allVenues().filter(v=>v.food&&!state.hidden.includes(v.id));
+  const groups={}; food.forEach(v=>{const g=v.cat==='restaurant'?(v.cuisine||'International'):'Kneipen & Bars mit Essen';(groups[g]=groups[g]||[]).push(v);});
+  restSel.innerHTML='<option value="">Keine Vorgabe – passend zur Küche wählen</option>'+
+    Object.keys(groups).sort((a,b)=>a.startsWith('Kneipen')-b.startsWith('Kneipen')||a.localeCompare(b,'de')).map(g=>`<optgroup label="${esc(g)}">`+groups[g].sort(sortName).map(v=>`<option value="${esc(v.id)}">${esc(v.name)}${esc(closedTag(v))}</option>`).join('')+'</optgroup>').join('');
+  restSel.value=state.startRest||'';
+  const rv=state.startRest&&byId(state.startRest);
+  document.getElementById('restNote').textContent= rv? `${rv.addr} · ${DAYS[state.day]}: ${hoursOn(rv,state.day)}${openEvening(rv,state.day)===false?' – Achtung: an diesem Abend laut Öffnungszeiten zu':''}`:'';
+  document.getElementById('cuisineChipsField').style.display=state.startRest?'none':'';
+  // Pflicht-Kneipen: alles außer reinen Restaurants
+  const bars=allVenues().filter(v=>v.cat!=='restaurant'&&!state.must.includes(v.id)&&v.id!==state.startRest&&!state.hidden.includes(v.id));
+  const lab={kneipe:'Kneipen',bar:'Bars',club:'Clubs'};
+  mustSel.innerHTML='<option value="">＋ Kneipe, Bar oder Club hinzufügen …</option>'+['kneipe','bar','club'].map(c=>`<optgroup label="${lab[c]}">`+bars.filter(v=>v.cat===c).sort(sortName).map(v=>`<option value="${esc(v.id)}">${esc(v.name)}${esc(closedTag(v))}</option>`).join('')+'</optgroup>').join('');
+  const endSel=document.getElementById('endSel');
+  const endBars=allVenues().filter(v=>v.cat!=='restaurant'&&!state.hidden.includes(v.id)&&!state.vetoed.includes(v.id));
+  endSel.innerHTML='<option value="">Egal</option><optgroup label="Ort">'+STARTS.filter(s=>s.lat).map(s=>`<option value="p:${s.id}">${esc(s.name)}</option>`).join('')+'</optgroup>'+
+    ['club','bar','kneipe'].map(c=>`<optgroup label="Letzter Stopp: ${({kneipe:'Kneipen',bar:'Bars',club:'Clubs'})[c]}">`+endBars.filter(v=>v.cat===c).sort(sortName).map(v=>`<option value="${esc(v.id)}">${esc(v.name)}${esc(closedTag(v))}</option>`).join('')+'</optgroup>').join('');
+  endSel.value=state.end||'';
+  document.getElementById('mustList').innerHTML=state.must.map(id=>{const v=byId(id);return v?`<span class="pchip">${esc(v.name)}<button data-id="${esc(id)}" title="entfernen">✕</button></span>`:'';}).join('');
+  document.querySelectorAll('#mustList button').forEach(b=>b.onclick=()=>toggleMust(b.dataset.id));
+}
+function setStartRest(id){
+  state.startRest=id||null;
+  if(id){state.must=state.must.filter(x=>x!==id); if(!state.food){state.food=true;syncFoodSeg();}}
+  renderPickers(); applyVB(); if(state.sel) selectVenue(state.sel,true);
+}
+function toggleMust(id){
+  if(state.must.includes(id)) state.must=state.must.filter(x=>x!==id);
+  else { state.must.push(id); if(state.startRest===id) state.startRest=null; if(state.end===id) state.end=''; if(state.must.length+(endVenue()?1:0)>state.stops) setStops(state.must.length+(endVenue()?1:0)); }
+  renderPickers(); applyVB(); if(state.sel) selectVenue(state.sel,true);
+}
+restSel.onchange=()=>setStartRest(restSel.value);
+document.getElementById('endSel').onchange=e=>setEnd(e.target.value);
+function setEnd(val){
+  state.end=val||'';
+  const v=endVenue(); if(v){state.must=state.must.filter(x=>x!==v.id); if(state.startRest===v.id) state.startRest=null; if(state.must.length+1>state.stops) setStops(state.must.length+1);}
+  renderPickers(); drawRoute(); applyVB(); if(state.sel) selectVenue(state.sel,true);
+}
+mustSel.onchange=()=>{ if(mustSel.value) toggleMust(mustSel.value); };
+function syncFoodSeg(){document.querySelectorAll('#foodSeg button').forEach(x=>x.classList.toggle('on',(x.dataset.v==='1')===state.food));document.getElementById('cuisineField').style.display=state.food?'':'none';}
+const startEl=document.getElementById('start'); STARTS.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;startEl.appendChild(o);});
+startEl.value=state.start; startEl.onchange=()=>{state.start=startEl.value;drawRoute();applyVB();};
+const dayEl=document.getElementById('day'); DAYS.forEach((d,i)=>{const o=document.createElement('option');o.value=i;o.textContent=d;dayEl.appendChild(o);});
+dayEl.value=state.day; dayEl.onchange=()=>{state.day=+dayEl.value;renderVenueList();renderPickers();applyVB();};
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='pane-'+t.dataset.tab));});
+const legHTML=Object.values(CATS).map(c=>`<span><i class="dot" style="background:${c.color}"></i>${c.label}</span>`).join('');
+document.getElementById('legend').innerHTML=legHTML; document.getElementById('mapleg').innerHTML=legHTML;
+
+/* ---------- Lokale-Liste ---------- */
+const vsearch=document.getElementById('vsearch'), vcat=document.getElementById('vcat');
+vsearch.oninput=renderVenueList; vcat.onchange=renderVenueList;
+function renderVenueList(){
+  document.getElementById('vcount').textContent=allVenues().length;
+  const q=vsearch.value.trim().toLowerCase(), c=vcat.value, box=document.getElementById('vlist'); box.innerHTML="";
+  const order=["kneipe","bar","club","restaurant"];
+  allVenues().filter(v=>(!c||v.cat===c)&&(!q||(v.name+' '+v.addr+' '+(v.cuisine||'')+' '+(v.styles||[]).join(' ')).toLowerCase().includes(q)))
+   .sort((a,b)=>order.indexOf(a.cat)-order.indexOf(b.cat)||a.name.localeCompare(b.name,'de')).forEach(v=>{
+    const off=state.hidden.includes(v.id), custom=state.added.some(a=>a.id===v.id), o=openEvening(v,state.day);
+    const d=document.createElement('div'); d.className='vitem'+(off?' off':'');
+    d.innerHTML=`<i class="dot" style="background:${CATS[v.cat].color}"></i><div class="t"><div class="n">${esc(v.name)}${state.startRest===v.id?'<span class="pin">Start</span>':''}${state.must.includes(v.id)?'<span class="pin">fest</span>':''}${state.end===v.id?'<span class="pin">Ende</span>':''}${state.vetoed.includes(v.id)?'<span class="pin" style="background:#fde2e2;color:#b91c1c">Veto</span>':''}</div><div class="a">${esc(v.addr)}${v.cuisine?' · '+esc(v.cuisine):''}${v.styles&&v.styles.length&&v.cat!=='restaurant'?' · '+esc(v.styles.join(', ')):''}</div>${o===false?`<div class="c">${esc(DAYS[state.day])} abends geschlossen</div>`:''}</div>`;
+    const sw=document.createElement('button'); sw.className='sw'; sw.textContent=off?'Aufnehmen':'Ausblenden';
+    sw.onclick=()=>{ off?state.hidden=state.hidden.filter(x=>x!==v.id):state.hidden.push(v.id); save(); refreshAll(); };
+    d.appendChild(sw);
+    if(custom){const del=document.createElement('button');del.className='sw';del.textContent='Löschen';del.style.marginLeft='4px';
+      del.onclick=()=>{state.added=state.added.filter(a=>a.id!==v.id);state.hidden=state.hidden.filter(x=>x!==v.id);save();refreshAll();};d.appendChild(del);}
+    d.querySelector('.n').onclick=()=>selectVenue(v.id,false);
+    box.appendChild(d);
+  });
+}
+function refreshAll(){renderVenueList();renderPickers();drawRoute();applyVB();}
+
+/* ---------- Lokal hinzufügen ---------- */
+const nStylesSet=new Set();
+document.getElementById('addBtn').onclick=()=>{state.placing=true;svg.classList.add('placing');document.getElementById('placebar').style.display='block';hidePop();};
+document.getElementById('placeCancel').onclick=stopPlacing;
+function stopPlacing(){state.placing=false;svg.classList.remove('placing');document.getElementById('placebar').style.display='none';}
+function openModal(){nStylesSet.clear();chips(document.getElementById('nStyles'),STYLES,nStylesSet,false);
+  ['nName','nAddr','nDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('modal').style.display='grid';document.getElementById('nName').focus();}
+document.getElementById('nCancel').onclick=()=>document.getElementById('modal').style.display='none';
+document.getElementById('nSave').onclick=()=>{
+  const name=document.getElementById('nName').value.trim(); if(!name||!state.pendingPos) return;
+  const cat=document.getElementById('nCat').value;
+  const v={id:'u-'+Date.now().toString(36),name,addr:document.getElementById('nAddr').value.trim()||'Erlangen',cat,food:cat==='restaurant',cuisine:cat==='restaurant'?'International':null,
+    styles:[...nStylesSet],desc:document.getElementById('nDesc').value.trim(),hours:'',oh:null,lat:+state.pendingPos.lat.toFixed(6),lon:+state.pendingPos.lon.toFixed(6)};
+  state.added.push(v); document.getElementById('modal').style.display='none'; save(); refreshAll(); selectVenue(v.id,true);
+};
+
+/* ---------- Capabilities ---------- */
+async function getCap(name){
+  for(let i=0;i<30&&!(window.claude&&window.claude.use);i++) await new Promise(r=>setTimeout(r,100));
+  try{return window.claude&&window.claude.use?await window.claude.use(name):null;}catch(e){return null;}
+}
+let dbDoc=null, writing=Promise.resolve();
+const saveNote=document.getElementById('saveNote');
+function save(){
+  if(!dbDoc){saveNote.textContent='Änderungen gelten nur für diesen Besuch.';return;}
+  const body={added:state.added,hidden:state.hidden,updated:new Date().toISOString()};
+  writing=writing.then(()=>dbDoc.set(body)).then(()=>{saveNote.textContent='Gespeichert.';}).catch(e=>{saveNote.textContent=e&&e.code==='invalid_argument'?'Nur Bearbeiter:innen können die Auswahl dauerhaft ändern – deine Änderung gilt nur für diesen Besuch.':'Speichern hat nicht geklappt – Änderung gilt nur für diesen Besuch.';});
+}
+(async()=>{
+  const db=await getCap("db"); if(!db) return;
+  try{ dbDoc=db.doc("config/venues");
+    dbDoc.onSnapshot(snap=>{ if(!snap.exists) return; const d=snap.data()||{};
+      state.added=Array.isArray(d.added)?d.added.filter(v=>v&&v.id&&v.name&&isFinite(v.lat)&&isFinite(v.lon)&&CATS[v.cat]).map(v=>({...v,styles:Array.isArray(v.styles)?v.styles:[],oh:null})):[];
+      state.hidden=Array.isArray(d.hidden)?d.hidden.filter(x=>typeof x==='string'):[];
+      refreshAll(); },()=>{});
+  }catch(e){dbDoc=null;}
+})();
+
+/* ---------- KI ---------- */
+let sample=null;
+const aiBtn=document.getElementById('aiBtn'),aiNote=document.getElementById('aiNote'),errEl=document.getElementById('err');
+const NOAI='KI ist in dieser Ansicht nicht verfügbar – die Schnellroute plant nach Stil, Öffnungszeiten und kurzen Wegen.';
+aiNote.textContent='KI wird verbunden …';
+/* Eigenes Hosting (z. B. Cloudflare): KI über /api/plan */
+const codeEl=document.getElementById('friendCode');
+try{codeEl.value=localStorage.getItem('kt-code')||'';}catch(_){}
+codeEl.oninput=()=>{try{localStorage.setItem('kt-code',codeEl.value.trim());}catch(_){}};
+async function serverSample(prompt){
+  const r=await fetch('/api/plan',{method:'POST',headers:{'content-type':'application/json','x-friend-code':codeEl.value.trim()},body:JSON.stringify({prompt})});
+  if(r.status===401) throw {code:'need_code'}; if(r.status===429) throw {code:'rate_limited'};
+  if(!r.ok) throw {message:'Der KI-Server antwortet gerade nicht ('+r.status+').'};
+  return await r.json();
+}
+async function serverMode(){
+  try{const r=await fetch('/api/health',{cache:'no-store'}); if(!r.ok) return false; const h=await r.json(); if(!h||!h.ok) return false;
+    const fn=p=>serverSample(p); fn.json=async p=>{const t=(await serverSample(p)).text||'';return JSON.parse((t.match(/\{[\s\S]*\}/)||['{}'])[0]);};
+    sample=fn; if(h.code) document.getElementById('codeField').style.display=''; return true;}catch(_){return false;}
+}
+let aiSettled=false;
+(async()=>{ sample=await getCap("sample"); if(!sample) await serverMode(); aiSettled=true;
+  if(sample) aiNote.textContent='Die KI berücksichtigt Stil, Wege, Öffnungszeiten und deine Wünsche.';
+  else {aiBtn.style.display='none';aiNote.textContent=NOAI;} })();
+setTimeout(()=>{if(!aiSettled&&!sample){aiBtn.style.display='none';aiNote.textContent=NOAI;}},11000);
+
+function settingsText(){
+  const st=STARTS.find(s=>s.id===state.start);
+  return [
+   `Mit Essen starten: ${state.food?'JA – erster Stopp ist ein Lokal mit Essen (Essen ≠ nein), bevorzugte Küche: '+[...state.cuisine].join(', '):'NEIN – nur Kneipen, Bars und Clubs, kein Restaurant'}`,
+   state.food&&state.startRest?`FESTES Start-Restaurant (muss Stopp 1 sein): id=${state.startRest} (${byId(state.startRest)?.name})`:'',
+   `Anzahl Kneipen-/Bar-Stopps${state.food?' NACH dem Essen':''}: genau ${state.stops} (keine Restaurants als Kneipen-Stopp)`,
+   state.must.length?`PFLICHT-Stopps (müssen alle enthalten sein, Reihenfolge frei, zählen zu den ${state.stops} Stopps): ${state.must.map(id=>`id=${id} (${byId(id)?.name})`).join(', ')}`:'',
+   endVenue()?`FESTER letzter Stopp (muss der letzte sein, zählt zu den Stopps): id=${endVenue().id} (${endVenue().name})`:'',
+   endPlace()?`Die Tour soll in der Nähe von ${endPlace().name} enden (letzter Stopp nah dran, Weg dorthin kurz).`:'',
+   state.vetoed.length?`Nicht verwenden (Veto): ${state.vetoed.map(id=>byId(id)?.name).filter(Boolean).join(', ')}`:'',
+   `Gewünschter Stil: ${state.styles.size?[...state.styles].join(', '):'keine Vorgabe, gern abwechslungsreich'}`,
+   `Startpunkt: ${st.name}`, `Wochentag: ${DAYS[state.day]}`,
+   `Sonstige Wünsche: ${document.getElementById('wish').value.trim()||'keine'}`
+  ].filter(Boolean).join('\n');
+}
+function candidates(){
+  const cz=[...state.cuisine].filter(c=>c!=='Egal');
+  const fixed=new Set([...state.must,...(state.food&&state.startRest?[state.startRest]:[]),...(endVenue()?[state.end]:[])].filter(id=>!state.vetoed.includes(id)));
+  const list=activeVenues().filter(v=>{
+    if(fixed.has(v.id)) return false;
+    if(v.cat!=='restaurant') return true;
+    if(!state.food||state.startRest) return false;
+    return !cz.length || cz.includes(v.cuisine);
+  });
+  return [...fixed].map(byId).filter(Boolean).concat(list);
+}
+function venueTable(list){
+  return list.map(v=>`- id=${v.id} | ${v.name} | ${CATS[v.cat].label} | Stil: ${(v.styles||[]).join(', ')||'-'} | Essen: ${v.food?(v.cuisine||'ja'):'nein'} | ${DAYS[state.day]}: ${hoursOn(v,state.day)}${v.desc?' | '+v.desc:''}`).join('\n');
+}
+function distMatrix(list){
+  const st=STARTS.find(s=>s.id===state.start),ep=endPlace(); const nodes=(st&&st.lat?[{id:'START',...st}]:[]).concat(list,ep?[{...ep,id:'ZIEL'}]:[]);
+  return nodes.map(a=>`${a.id}: `+nodes.filter(b=>b!==a).map(b=>[b.id,netM(a,b)]).sort((x,y)=>x[1]-y[1]).slice(0,7).map(([id,m])=>`${id} ${m}m`).join(', ')).join('\n');
+}
+async function planAI(){
+  errEl.textContent=''; const list=candidates(); if(list.length<2){errEl.textContent='Zu wenige passende Lokale für diese Einstellungen.';return;}
+  aiBtn.disabled=true; aiBtn.innerHTML='<span class="spin"></span> KI plant deine Tour …';
+  const prompt=`Du bist ein ortskundiger Erlanger Nachtleben-Guide und planst eine Kneipentour zu Fuß durch die Innenstadt.
+
+EINSTELLUNGEN
+${settingsText()}
+
+VERFÜGBARE LOKALE (nur diese verwenden, IDs exakt übernehmen; Öffnungszeiten für den gewählten Tag)
+${venueTable(list)}
+
+GEHDISTANZEN (echte Fußwege in Metern zu den nächsten Nachbarn; START = Startpunkt, ZIEL = gewünschter Endort)
+${distMatrix(list)}
+
+REGELN
+- Nur Lokale aus der Liste, keines doppelt. Bevorzuge Lokale mit Beschreibung oder klarem Stil.
+- Feste Vorgaben (Start-Restaurant, Pflicht-Stopps, letzter Stopp, Endort) unbedingt einhalten und die übrigen Stopps so wählen, dass die Wege zwischen ihnen kurz bleiben.
+- Erster Stopp = Essen, falls gewünscht (ab ca. 18:30–19:00); danach genau die gewünschte Zahl an Kneipen/Bars/Clubs.
+- Plane die Ankunftszeiten so, dass jedes Lokal zu dieser Zeit laut Öffnungszeiten offen hat. „unbekannt“ ist erlaubt, aber zurückhaltend nutzen.
+- Kurze, logische Wege ohne Zickzack; nutze die Gehdistanzen.
+- Lokale, die lange offen haben (DJ-Bar, Club, bis 3–5 Uhr), gehören ans Ende. Steigere die Energie im Laufe des Abends.
+- Schreibe auf Deutsch, locker und konkret; erfinde keine Fakten über die Lokale.
+
+Antworte NUR mit JSON in genau diesem Format:
+{"title":"kurzer, griffiger Tourname","summary":"1–2 Sätze, warum diese Tour passt","stops":[{"id":"...","arrive":"HH:MM","stay_min":60,"reason":"1 Satz, warum hier","tip":"kurzer Tipp (optional, leer lassen wenn nichts Sicheres)"}]}`;
+  try{
+    let out;
+    try{ out=await sample.json(prompt,{modelTier:"default"}); }
+    catch(e){ if(e&&e.code) throw e; const r=await sample(prompt,{modelTier:"default"}); out=JSON.parse((r.text.match(/\{[\s\S]*\}/)||['{}'])[0]); }
+    const ok=validate(out,list); if(!ok) throw {message:'Die KI-Antwort passte nicht zu den Lokalen.'};
+    setRoute(ok,'KI');
+  }catch(e){
+    if(e&&e.code==='need_code'){document.getElementById('codeField').style.display='';errEl.textContent='Bitte den richtigen Freundes-Code eingeben – ohne Code geht nur die Schnellroute.';}
+    else if(e&&e.code==='not_granted'){aiBtn.style.display='none';aiNote.textContent='KI-Zugriff wurde nicht erlaubt – nutze die Schnellroute.';}
+    else if(e&&e.code==='rate_limited'){errEl.textContent='Gerade zu viele Anfragen – bitte in einer Minute nochmal.';}
+    else {errEl.textContent=(e&&e.message?e.message+' ':'')+'Ich habe stattdessen eine Schnellroute berechnet.';setRoute(planLocal(),'Schnellroute');}
+  }finally{aiBtn.disabled=false;aiBtn.innerHTML='✦ Route mit KI planen';}
+}
+function validate(out,list){
+  if(!out||!Array.isArray(out.stops)) return null;
+  const ids=new Set(list.map(v=>v.id)),seen=new Set(),stops=[];
+  out.stops.forEach(s=>{if(s&&ids.has(s.id)&&!seen.has(s.id)){seen.add(s.id);stops.push({id:s.id,arrive:String(s.arrive||''),stay:+s.stay_min||null,reason:String(s.reason||''),tip:String(s.tip||'')});}});
+  if(!stops.length) return null;
+  // Feste Vorgaben absichern
+  if(state.food&&state.startRest){ const i=stops.findIndex(s=>s.id===state.startRest); const st=i>=0?stops.splice(i,1)[0]:{id:state.startRest,reason:'Dein gewähltes Start-Restaurant.',tip:''}; stops.unshift(st); }
+  state.must.forEach(id=>{ if(!stops.some(s=>s.id===id)) stops.push({id,reason:'Dein Wunsch-Stopp.',tip:''}); });
+  const ev=endVenue(); if(ev){ const i=stops.findIndex(s=>s.id===ev.id); const e=i>=0?stops.splice(i,1)[0]:{id:ev.id,reason:'Dein gewählter letzter Stopp.',tip:''}; stops.push(e); }
+  return {title:String(out.title||'Deine Tour'),summary:String(out.summary||''),stops};
+}
+function tourLen(start,items,endPt){let L=0,c=start;for(const v of items){if(c)L+=dist(c,v);c=v;}if(endPt&&c)L+=dist(c,endPt);return L;}
+function orderPath(start,items,endPt){ // nächster Nachbar + 2-opt
+  const rest=items.slice(),out=[];let c=start;
+  while(rest.length){rest.sort((a,b)=>c?dist(c,a)-dist(c,b):0);c=rest.shift();out.push(c);}
+  let improved=true,guard=0;
+  while(improved&&guard++<50){improved=false;
+    for(let i=0;i<out.length-1;i++)for(let j=i+1;j<out.length;j++){const cand=out.slice(0,i).concat(out.slice(i,j+1).reverse(),out.slice(j+1));
+      if(tourLen(start,cand,endPt)+0.5<tourLen(start,out,endPt)){out.splice(0,out.length,...cand);improved=true;}}}
+  return out;
+}
+function planLocal(){
+  const list=candidates(), st=STARTS.find(s=>s.id===state.start), want=[...state.styles];
+  const score=v=>want.length?(v.styles||[]).filter(s=>want.includes(s)).length:0;
+  const known=v=>(v.desc?1:0)+(openEvening(v,state.day)===true?0.8:0);
+  const ev=endVenue(), ep=endPlace();
+  let cur=st&&st.lat?st:null; const stops=[];
+  let food=null;
+  if(state.food){
+    if(state.startRest&&!state.vetoed.includes(state.startRest)) food=byId(state.startRest);
+    else { let cand=list.filter(v=>v.food); const rest=cand.filter(v=>v.cat==='restaurant'); if(rest.length) cand=rest;
+      cand.sort((a,b)=>(score(b)*300+known(b)*250-(cur?dist(cur,b):0))-(score(a)*300+known(a)*250-(cur?dist(cur,a):0))); food=cand[0]; }
+    if(food){stops.push({id:food.id,reason:state.startRest===food.id?'Dein gewähltes Start-Restaurant.':(food.desc||`Essen zum Start: ${food.cuisine||'gute Küche'}.`),tip:''});cur=food;}
+  }
+  const chosen=state.must.map(byId).filter(v=>v&&!state.vetoed.includes(v.id));
+  const target=state.stops-(ev?1:0);
+  const anchors=()=>[...(cur?[cur]:[]),...chosen,...(ev?[ev]:[]),...(ep?[ep]:[])];
+  const near=v=>{const a=anchors();return a.length?Math.min(...a.map(x=>dist(x,v))):0;};
+  let pool=list.filter(v=>v.cat!=='restaurant'&&!chosen.includes(v)&&v!==food&&v!==ev);
+  while(chosen.length<target&&pool.length){
+    const wantClub=!ev&&chosen.length===target-1&&want.includes('DJ-Bar & Tanzen');
+    const val=v=>score(v)*1000+known(v)*200-near(v)+(v.cat==='club'?(wantClub?400:-300):0);
+    pool.sort((a,b)=>val(b)-val(a)); chosen.push(pool.shift());
+  }
+  const normal=chosen.filter(v=>v.cat!=='club'), clubs=chosen.filter(v=>v.cat==='club');
+  const tailStart=clubs[0]||ev||ep||null;
+  const seq=orderPath(cur,normal,tailStart);
+  const seqClubs=orderPath(seq[seq.length-1]||cur,clubs,ev||ep||null);
+  [...seq,...seqClubs,...(ev?[ev]:[])].forEach(v=>stops.push({id:v.id,reason:v===ev?('Dein gewählter letzter Stopp. '+(v.desc||'')).trim():state.must.includes(v.id)?('Dein Wunsch-Stopp. '+(v.desc||'')).trim():(v.desc||''),tip:''}));
+  return {title:'Schnellroute',summary:'Nach deinen Vorgaben, Stil, Öffnungszeiten und kurzen Wegen sortiert – für eine persönlichere Tour die KI fragen.',stops};
+}
+/* Veto: Stopp durch passende Alternative ersetzen */
+function vetoStop(i){
+  const r=state.route; if(!r) return; const s=r.stops[i], v=byId(s.id); if(!v) return;
+  if(!state.vetoed.includes(v.id)) state.vetoed.push(v.id);
+  const wasStart=state.startRest===v.id, wasEnd=state.end===v.id;
+  state.must=state.must.filter(x=>x!==v.id); if(wasStart) state.startRest=null; if(wasEnd) state.end='';
+  const st=STARTS.find(x=>x.id===state.start);
+  const prev=i>0?byId(r.stops[i-1].id):(st&&st.lat?st:null);
+  const next=r.stops[i+1]?byId(r.stops[i+1].id):endPlace();
+  const inRoute=new Set(r.stops.map(x=>x.id));
+  const isFood=i===0&&state.food&&v.food;
+  const want=new Set([...state.styles,...(v.styles||[])]);
+  let pool=activeVenues().filter(x=>!inRoute.has(x.id));
+  pool=isFood?pool.filter(x=>x.food&&(x.cat==='restaurant'||v.cat!=='restaurant')):pool.filter(x=>x.cat!=='restaurant');
+  if(!pool.length){errEl.textContent=`Für „${v.name}“ habe ich keine passende Alternative gefunden.`;return;}
+  const val=x=>(x.styles||[]).filter(t=>want.has(t)).length*700+(x.cat===v.cat?250:0)+(isFood&&x.cuisine===v.cuisine?400:0)+(x.desc?200:0)+(openEvening(x,state.day)===true?150:0)
+     -((prev?dist(prev,x):0)+(next?dist(x,next):0));
+  pool.sort((a,b)=>val(b)-val(a)); const alt=pool[0];
+  r.stops[i]={id:alt.id,arrive:s.arrive,stay:s.stay,reason:`Statt ${v.name}: ${alt.desc||(alt.cuisine?alt.cuisine+'.':CATS[alt.cat].label+' in der Nähe.')}`,tip:'',swapped:true};
+  if(wasEnd&&i===r.stops.length-1){} // Position bleibt am Ende
+  errEl.textContent=''; renderPickers(); renderVenueList(); drawRoute(); renderResult(); applyVB();
+}
+function resetVetos(){state.vetoed=[];renderPickers();renderVenueList();renderResult();applyVB();}
+function setRoute(r,source){state.route={...r,source};drawRoute();renderResult();state.sel=null;pop.style.display='none';fitRoute();}
+function fitRoute(){const vs=state.route.stops.map(s=>byId(s.id)).filter(Boolean);const st=STARTS.find(s=>s.id===state.start);if(st&&st.lat)vs.push(st);const ep=endPlace();if(ep)vs.push(ep);fitPoints(vs,140);}
+function renderResult(){
+  const r=state.route,box=document.getElementById('result'); if(!r){box.innerHTML='';return;}
+  const st=STARTS.find(s=>s.id===state.start); const seq=r.stops.map(s=>({...s,v:byId(s.id)})).filter(s=>s.v);
+  let total=0; const legs=[]; let prev=st&&st.lat?st:null;
+  seq.forEach(s=>{const m=prev?netM(prev,s.v):0;legs.push(m);total+=m;prev=s.v;});
+  const ep=endPlace(); const lastLeg=ep&&prev?netM(prev,ep):0; total+=lastLeg;
+  const addr=v=>v.name+', '+v.addr.replace(/^nahe /,'')+', Erlangen';
+  const addrs=seq.map(s=>addr(s.v)); const origin=st&&st.lat?(st.name==='Hauptbahnhof'?'Erlangen Hauptbahnhof':st.name+', Erlangen'):addrs[0];
+  const placeName=p=>p.name==='Hauptbahnhof'?'Erlangen Hauptbahnhof':p.name+', Erlangen';
+  const destination=ep?placeName(ep):addrs[addrs.length-1];
+  const way=(st&&st.lat?addrs:addrs.slice(1)).slice(0,ep?undefined:-1);
+  const gurl='https://www.google.com/maps/dir/?api=1&travelmode=walking&origin='+encodeURIComponent(origin)+'&destination='+encodeURIComponent(destination)+(way.length?'&waypoints='+encodeURIComponent(way.join('|')):'');
+  box.innerHTML=`<div class="result"><h2>${esc(r.title)}<span class="badge">${esc(r.source)}</span></h2>
+   ${r.summary?`<p class="sum">${esc(r.summary)}</p>`:''}
+   <div class="stats"><span><b>${seq.length}</b> Stopps</span><span><b>${(total/1000).toFixed(1).replace('.',',')} km</b> zu Fuß</span><span>≈ <b>${walkMin(total)} min</b> Gehzeit</span></div>
+   ${state.vetoed.length?`<div class="vetobar"><span>${state.vetoed.length} Lokal${state.vetoed.length>1?'e':''} per Veto ausgeschlossen</span><button id="vetoReset">Vetos zurücksetzen</button></div>`:''}
+   <ol class="stops">${seq.map((s,i)=>`<li><div class="num" style="background:${CATS[s.v.cat].color}">${i+1}</div>
+     <button class="veto" data-i="${i}" title="Dieses Lokal nicht – Alternative suchen">✕ Veto</button>
+     <div class="sname" data-id="${esc(s.id)}">${esc(s.v.name)}${s.swapped?'<span class="pin">neu</span>':''}</div>
+     <div class="smeta">${esc(CATS[s.v.cat].label)} · ${esc(s.v.addr)}${s.arrive?` · ab ${esc(s.arrive)}`:''}${s.stay?` · ~${s.stay} min`:''}</div>
+     <div class="smeta">🕑 ${esc(DAYS[state.day])}: ${esc(hoursOn(s.v,state.day))}</div>
+     ${s.reason?`<div class="sreason">${esc(s.reason)}</div>`:''}
+     ${s.tip?`<div class="sreason" style="color:var(--amber2);margin-top:3px">💡 ${esc(s.tip)}</div>`:''}
+     ${legs[i]?`<div class="walk">${i===0?'vom Start':'vom vorherigen Stopp'}: ${legs[i]} m · ~${walkMin(legs[i])} min</div>`:''}</li>`).join('')}
+     ${ep?`<li><div class="num" style="background:#2b2119">⚑</div><div class="sname">${esc(ep.name)}</div><div class="walk">vom letzten Stopp: ${lastLeg} m · ~${walkMin(lastLeg)} min</div></li>`:''}</ol>
+   <div class="links"><a href="${gurl}" target="_blank" rel="noopener">In Google Maps öffnen ↗</a><button id="copyBtn">Route kopieren</button></div>
+   <div class="note">Wege und Gehzeiten über das Fußwegenetz aus OpenStreetMap berechnet. Öffnungszeiten stammen aus OpenStreetMap und können veraltet sein.</div></div>`;
+  box.querySelectorAll('.sname[data-id]').forEach(n=>n.onclick=()=>selectVenue(n.dataset.id,false));
+  box.querySelectorAll('.veto').forEach(b=>b.onclick=()=>vetoStop(+b.dataset.i));
+  const vr=document.getElementById('vetoReset'); if(vr) vr.onclick=resetVetos;
+  document.getElementById('copyBtn').onclick=async ev=>{
+    const txt=`${r.title}\n`+seq.map((s,i)=>`${i+1}. ${s.v.name} – ${s.v.addr}${s.arrive?' (ab '+s.arrive+')':''}`).join('\n')+`\n\n${gurl}`;
+    try{await navigator.clipboard.writeText(txt);ev.target.textContent='Kopiert ✓';}catch(e){ev.target.textContent='Kopieren nicht möglich';}
+    setTimeout(()=>ev.target.textContent='Route kopieren',1800);
+  };
+}
+aiBtn.onclick=()=>{if(sample)planAI();};
+document.getElementById('quickBtn').onclick=()=>{errEl.textContent='';setRoute(planLocal(),'Schnellroute');};
+
+/* ---------- Start ---------- */
+drawBase(); renderVenueList(); renderPickers();
+requestAnimationFrame(()=>fitCore());
+</script>
+</body>
+</html>
